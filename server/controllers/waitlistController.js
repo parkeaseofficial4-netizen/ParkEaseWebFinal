@@ -23,7 +23,7 @@ class waitlistController {
       const waitlist = await prisma.waitlist.findMany({
         orderBy: { createdAt: "desc" },
       });
-      res.json(waitlist);
+      return res.status(200).json(waitlist);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch waitlist entries" });
     }
@@ -46,7 +46,6 @@ class waitlistController {
       });
 
       // respond immediately
-      res.status(201).json(newEntry);
 
       // send welcome email asynchronously (do not block the response)
       const subject = "🎉 Welcome to ParkEase!";
@@ -64,6 +63,7 @@ class waitlistController {
         .catch((err) =>
           console.error("Failed to send welcome email to", data.email, err)
         );
+      return res.status(201).json(newEntry);
 
       // If you prefer to handle email failures more strictly, await sendEmail and handle errors above.
       // Or re-enable your email queue here instead of calling sendEmail directly.
@@ -95,7 +95,7 @@ class waitlistController {
       };
 
       await sendEmail(payload.toEmail, payload.subject, payload.body);
-      res.status(200).json({ message: "Email sent successfully" });
+      return res.status(200).json({ message: "Email sent successfully" });
     } catch (error) {
       console.error("Error sending email to waitlist:", error);
       res.status(500).json({ error: "Failed to send email to waitlist" });
