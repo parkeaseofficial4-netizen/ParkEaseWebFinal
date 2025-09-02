@@ -1,5 +1,5 @@
 // keep it simple: frontend calls its own /api; Next.js rewrites to backend
-const API_BASE_URL = "/api";
+const API_BASE_URL = "https://api-parkease.vercel.app/api";
 
 class ApiError extends Error {
   constructor(message, status, errors = []) {
