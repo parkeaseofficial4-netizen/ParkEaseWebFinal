@@ -1,3 +1,6 @@
+// server/api/server.js
+
+
 import cors from "cors";
 import express from "express";
 // Use explicit dotenv path or rely on Vercel env vars
