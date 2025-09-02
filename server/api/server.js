@@ -1,18 +1,28 @@
-// backend/server.js
-
 import cors from "cors";
-import "dotenv/config";
 import express from "express";
+// Use explicit dotenv path or rely on Vercel env vars
+// import "dotenv/config";  // optional for local; on Vercel use dashboard envs
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+
+// CORS: use full URLs and include previews if you’ll call from them
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://www.parkease.dev",
+  "https://parkease.dev",
+];
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000", // local dev
-      "www.parkease.dev", // production frontend
-    ],
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        /^https?:\/\/.*\.vercel\.app$/.test(origin)
+      )
+        return cb(null, true);
+      cb(new Error("Not allowed by CORS"));
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -20,25 +30,20 @@ app.use(
 );
 
 app.use(express.json());
-// app.use(express.urlencoded({ extended: false }));
-// app.use(fileUpload());
-// app.use(helmet());
-// app.use(limiter); // Apply rate limiting to all requests
 
-app.get("/", (req, res) => {
-  return res.json({ message: "Hello, it's working..." });
+app.get("/", (_req, res) => {
+  res.json({ message: "Hello, it's working..." });
 });
 
+// IMPORTANT: avoid double /api unless you intend it.
+// If you keep this:
 import apiRoutes from "../routes/api.js";
-app.use("/api", apiRoutes); // Main API routes
+app.use("/api", apiRoutes); // -> external URLs will be /api/...
 
-// import adminRoute from "./routes/adminRoute.js";
-// app.use("/api/admin", adminRoute); // For system admin
+// Only listen locally; export app for Vercel
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => console.log(`Local: http://localhost:${PORT}`));
+}
 
-// import systemAdminRoute from "./routes/systemAdminRoute.js";
-// app.use("/api/system", systemAdminRoute); // For institution admin
-
-// // * Logger
-// logger.info("Hey I'm just testing...");
-
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+export default app;

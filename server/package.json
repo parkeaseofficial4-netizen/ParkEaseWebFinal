@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node api/server.js",
     "server": "nodemon api/server.js",
-    "build": "npx prisma generate"
+    "build": "echo 'No build step needed for Express'",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
